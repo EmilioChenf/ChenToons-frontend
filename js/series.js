@@ -224,7 +224,8 @@ async function verDetalleChen(id) {
   await cargarPersonajesPorSerieChenin(id);
   await cargarEpisodiosPorSerieChenin(id);
   pintarComentariosChen(serieActualJosuc);
-  document.getElementById("modalDetalle").showModal();
+  const modal = document.getElementById("modalDetalle");
+  if (!modal.open) modal.showModal();
 }
 
 function pintarDetalleSerieChen() {
@@ -254,7 +255,7 @@ async function guardarRatingEmilio(evento) {
     comentario: document.getElementById("ratingComentario").value.trim()
   };
 
-  await pedirChenin(`/series/${id}/ratings`, {
+  const respuesta = await pedirChenin(`/series/${id}/ratings`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(datos)
@@ -262,8 +263,9 @@ async function guardarRatingEmilio(evento) {
 
   document.getElementById("ratingComentario").value = "";
   toastChen("Rating agregado");
-  await cargarSeriesChenin();
-  await verDetalleChen(id);
+
+  const nuevoRating = typeof respuesta === "object" && respuesta ? respuesta : datos;
+  await refrescarRatingSerieChen(id, nuevoRating);
 }
 
 function pintarComentariosChen(serie) {
@@ -282,4 +284,43 @@ function pintarComentariosChen(serie) {
       </div>
     </div>
   `).join("");
+}
+
+async function refrescarRatingSerieChen(id, nuevoRating) {
+  let serieActualizada = null;
+
+  try {
+    serieActualizada = await pedirChenin(`/series/${id}`);
+  } catch {
+    serieActualizada = serieActualJosuc;
+  }
+
+  const comentariosBackend = valorChen(serieActualizada, ["ratings", "comentarios"], []);
+  const comentariosActuales = valorChen(serieActualJosuc, ["ratings", "comentarios"], []);
+
+  if (!Array.isArray(comentariosBackend) || !comentariosBackend.length) {
+    const listaLocal = Array.isArray(comentariosActuales) ? comentariosActuales : [];
+    serieActualizada.ratings = [...listaLocal, nuevoRating];
+  }
+
+  try {
+    const promedio = await pedirChenin(`/series/${id}/promedio-rating`);
+    serieActualizada.promedio_rating = typeof promedio === "number"
+      ? promedio
+      : Number(valorChen(promedio, ["promedio", "promedio_rating", "rating", "average"], 0));
+  } catch {
+    serieActualizada.promedio_rating = Number(valorChen(serieActualizada, ["promedio_rating", "rating"], 0));
+  }
+
+  serieActualJosuc = serieActualizada;
+
+  const indice = seriesChenin.findIndex((serie) => String(idChen(serie)) === String(id));
+  if (indice >= 0) {
+    seriesChenin[indice] = { ...seriesChenin[indice], ...serieActualizada };
+  }
+
+  pintarDetalleSerieChen();
+  pintarComentariosChen(serieActualJosuc);
+  pintarDashboardChen();
+  pintarCardsChen();
 }
