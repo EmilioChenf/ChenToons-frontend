@@ -2,11 +2,40 @@ let seriesChenin = [];
 let paginaChen = 1;
 let serieActualJosuc = null;
 const porPaginaChen = 10;
-const limiteCargaSeriesChen = 100;
+const limiteCargaSeriesChen = 20;
 
 async function cargarSeriesChenin() {
-  const respuesta = await pedirChenin(`/series?page=1&limit=${limiteCargaSeriesChen}`);
-  seriesChenin = listaChen(respuesta);
+  const urlChenin = `/series?page=1&limit=${limiteCargaSeriesChen}`;
+  console.log("URL usada:", urlChenin);
+  const respuestaChenin = await pedirChenin(urlChenin);
+  console.log("Respuesta /series:", respuestaChenin);
+
+  let todasLasSeriesChenin = listaChen(respuestaChenin);
+  const totalPaginasBackendChen = Number(valorChen(respuestaChenin, ["total_pages"], 1)) || 1;
+  const limitBackendChen = Number(valorChen(respuestaChenin, ["limit"], limiteCargaSeriesChen)) || limiteCargaSeriesChen;
+
+  if (totalPaginasBackendChen > 1) {
+    const paginasPendientesChen = [];
+    for (let paginaBackendChen = 2; paginaBackendChen <= totalPaginasBackendChen; paginaBackendChen++) {
+      paginasPendientesChen.push(pedirChenin(`/series?page=${paginaBackendChen}&limit=${limitBackendChen}`));
+    }
+
+    const respuestasExtraChen = await Promise.all(paginasPendientesChen);
+    respuestasExtraChen.forEach((respuestaExtraChen) => {
+      todasLasSeriesChenin = todasLasSeriesChenin.concat(listaChen(respuestaExtraChen));
+    });
+  }
+
+  const idsVistosChen = new Set();
+  seriesChenin = todasLasSeriesChenin.filter((serie) => {
+    const id = idChen(serie);
+    if (!id) return true;
+    if (idsVistosChen.has(id)) return false;
+    idsVistosChen.add(id);
+    return true;
+  });
+
+  console.log("Series cargadas:", todasLasSeriesChenin.length);
   await completarPromediosChen();
   llenarFiltrosChen();
   pintarDashboardChen();
@@ -82,24 +111,26 @@ function filtrarSeriesChen() {
 
 function pintarCardsChen() {
   const grid = document.getElementById("gridSeries");
-  const filtradas = filtrarSeriesChen();
-  const totalPaginas = Math.max(1, Math.ceil(filtradas.length / porPaginaChen));
+  const seriesFiltradasChenin = filtrarSeriesChen();
+  console.log("Series filtradas:", seriesFiltradasChenin.length);
+  const totalPaginas = Math.max(1, Math.ceil(seriesFiltradasChenin.length / porPaginaChen));
   if (paginaChen > totalPaginas) paginaChen = totalPaginas;
 
   const inicio = (paginaChen - 1) * porPaginaChen;
-  const pagina = filtradas.slice(inicio, inicio + porPaginaChen);
+  const seriesPaginadasChenin = seriesFiltradasChenin.slice(inicio, inicio + porPaginaChen);
+  console.log("Series paginadas:", seriesPaginadasChenin.length);
 
   document.getElementById("paginaActual").textContent = `${paginaChen} / ${totalPaginas}`;
-  document.getElementById("resumenLista").textContent = `Mostrando ${pagina.length} de ${filtradas.length} serie(s)`;
+  document.getElementById("resumenLista").textContent = `Mostrando ${seriesPaginadasChenin.length} de ${seriesFiltradasChenin.length} serie(s)`;
   document.getElementById("paginaAnterior").disabled = paginaChen <= 1;
   document.getElementById("paginaSiguiente").disabled = paginaChen >= totalPaginas;
 
-  if (!pagina.length) {
+  if (!seriesPaginadasChenin.length) {
     grid.innerHTML = '<div class="vacio">No hay series para mostrar.</div>';
     return;
   }
 
-  grid.innerHTML = pagina.map((serie) => {
+  grid.innerHTML = seriesPaginadasChenin.map((serie) => {
     const id = idChen(serie);
     const nombre = valorChen(serie, ["nombre"], "Sin nombre");
     const genero = valorChen(serie, ["genero"], "Sin genero");
