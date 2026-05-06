@@ -102,17 +102,30 @@ http://localhost:3000
 
 ## Challenges implementados
 
-- Exportacion CSV.
+### API y Backend
+
+- API REST separada del frontend.
+- Endpoints para listar, crear, editar y eliminar series.
+- Paginacion con `page` y `limit`.
+- Sistema de ratings por serie.
+- Subida de imagenes con endpoint de uploads.
+- Exportacion CSV desde endpoint del backend.
+- Docker y Docker Compose para correr el proyecto.
+
+### Frontend
+
+- Consumo de API REST usando `fetch()`.
+- CRUD completo de series desde la interfaz.
+- Modal de detalles para ver serie, ratings, personajes y episodios.
+- Busqueda en tiempo real.
+- Filtros dinamicos por genero y estado.
+- Ordenamiento visual por nombre o año.
+- Paginacion visual de las cards.
+- Exportacion CSV manual con JavaScript vanilla como respaldo.
 - Exportacion Excel usando SpreadsheetML sin librerias externas.
-- Sistema de ratings y comentarios.
-- Upload de imagenes.
-- Paginacion.
-- Busqueda.
-- Filtros.
-- Ordenamiento.
-- Diseño responsive.
-- Docker.
-- Preparacion para deploy en Render Static Site.
+- Upload de imagenes desde formulario.
+- Imagenes base servidas desde `assets/images` para produccion.
+- Diseño responsive para laptop y celular.
 
 ## Deploy
 
