@@ -147,4 +147,4 @@ Trabajar con JavaScript vanilla hizo que entendieramos mejor como se conecta el 
 ## Autor
 
 Proyecto: ChenToons  
-Autor: TU-NOMBRE
+Autor: Emilio Josue Chen borrayo
