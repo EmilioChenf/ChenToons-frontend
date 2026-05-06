@@ -1,0 +1,15 @@
+services:
+  chentoons-client:
+    build: .
+    container_name: chentoons-client
+    ports:
+      - "3000:80"
+    environment:
+      - TZ=America/Guatemala
+
+  # Si el backend esta en otra carpeta, se puede activar algo parecido a esto:
+  # chentoons-api:
+  #   build: ../chentoons-backend
+  #   container_name: chentoons-api
+  #   ports:
+  #     - "8080:8080"

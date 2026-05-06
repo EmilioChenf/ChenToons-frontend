@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChenToons</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="marca">
+      <span class="logo">CT</span>
+      <div>
+        <h1>ChenToons</h1>
+        <p>Series animadas, personajes y episodios</p>
+      </div>
+    </div>
+    <nav class="acciones-top">
+      <button id="btnRefrescar" class="btn btn-suave">Actualizar</button>
+      <button id="btnNuevaSerie" class="btn btn-principal">Nueva serie</button>
+    </nav>
+  </header>
+
+  <main class="layout">
+    <aside class="panel-lateral">
+      <section class="api-box">
+        <span class="etiqueta">API</span>
+        <strong id="estadoApi">Revisando...</strong>
+        <small id="apiBaseTexto"></small>
+      </section>
+
+      <div class="busqueda-panel">
+        <input id="buscarTexto" type="search" placeholder="Buscar series...">
+        <span class="icono-buscar" aria-hidden="true"></span>
+      </div>
+
+      <section class="filtros">
+        <h2><span class="icono-filtro" aria-hidden="true"></span>Filtros</h2>
+        <label class="grupo-filtro">
+          <span>Genero</span>
+          <select id="filtroGenero">
+            <option value="">Todos</option>
+          </select>
+        </label>
+        <label class="grupo-filtro">
+          <span>Estado</span>
+          <select id="filtroEstado">
+            <option value="">Todos</option>
+            <option value="En emision">En emision</option>
+            <option value="Finalizada">Finalizada</option>
+            <option value="Pausada">Pausada</option>
+          </select>
+        </label>
+        <label class="grupo-filtro">
+          <span>Orden</span>
+          <select id="ordenSeries">
+            <option value="nombre">Nombre</option>
+            <option value="anio">Anio</option>
+          </select>
+        </label>
+      </section>
+
+      <section class="exportar">
+        <h2>Exportar</h2>
+        <button id="btnCsv" class="btn btn-linea"><span>CSV</span>Descargar CSV</button>
+        <button id="btnExcel" class="btn btn-linea"><span>XLS</span>Descargar Excel</button>
+      </section>
+    </aside>
+
+    <section class="contenido">
+      <section class="dashboard">
+        <article class="stat">
+          <span>Total series</span>
+          <strong id="totalSeries">0</strong>
+        </article>
+        <article class="stat">
+          <span>Destacadas</span>
+          <strong id="seriesDestacadas">0</strong>
+        </article>
+        <article class="stat">
+          <span>Rating general</span>
+          <strong id="ratingGeneral">0.0</strong>
+        </article>
+        <article class="stat">
+          <span>Personajes / episodios</span>
+          <strong id="totalExtras">0</strong>
+        </article>
+      </section>
+
+      <section class="encabezado-lista">
+        <div>
+          <h2>Catalogo</h2>
+          <p id="resumenLista">Cargando series...</p>
+        </div>
+        <div class="paginacion">
+          <button id="paginaAnterior" class="btn btn-mini">Anterior</button>
+          <span id="paginaActual">1</span>
+          <button id="paginaSiguiente" class="btn btn-mini">Siguiente</button>
+        </div>
+      </section>
+
+      <section id="gridSeries" class="grid-series"></section>
+    </section>
+  </main>
+
+  <dialog id="modalSerie" class="modal">
+    <form id="formSerie" class="formulario">
+      <div class="modal-head">
+        <h2 id="tituloFormSerie">Nueva serie</h2>
+        <button type="button" class="btn-cerrar" data-cerrar="modalSerie">x</button>
+      </div>
+      <input type="hidden" id="serieId">
+
+      <div class="form-grid">
+        <label>Nombre<input id="serieNombre" required></label>
+        <label>Categoria<input id="serieCategoria" placeholder="Animacion"></label>
+        <label>Genero<input id="serieGenero" placeholder="Comedia"></label>
+        <label>Anio lanzamiento<input id="serieAnio" type="number" min="1900"></label>
+        <label>Temporadas<input id="serieTemporadas" type="number" min="1"></label>
+        <label>Estado
+          <select id="serieEstado">
+            <option>En emision</option>
+            <option>Finalizada</option>
+            <option>Pausada</option>
+          </select>
+        </label>
+        <label>Plataforma<input id="seriePlataforma" placeholder="Netflix, TV..."></label>
+        <label>Creador<input id="serieCreador"></label>
+        <label>Pais origen<input id="seriePais"></label>
+        <label>Color tema<input id="serieColor" type="color" value="#4ECDC4"></label>
+        <label class="check"><input id="serieDestacada" type="checkbox"> Destacada</label>
+        <label>Imagen local<input id="serieImagenArchivo" type="file" accept="image/*"></label>
+      </div>
+
+      <label>Descripcion<textarea id="serieDescripcion" rows="3"></textarea></label>
+      <label>Ruta imagen<input id="serieImagen" placeholder="/uploads/archivo.png"></label>
+
+      <div class="acciones-form">
+        <button type="button" class="btn btn-suave" data-cerrar="modalSerie">Cancelar</button>
+        <button class="btn btn-principal" type="submit">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="modalDetalle" class="modal modal-grande">
+    <div class="detalle">
+      <div class="modal-head">
+        <h2 id="detalleTitulo">Detalle</h2>
+        <button type="button" class="btn-cerrar" data-cerrar="modalDetalle">x</button>
+      </div>
+      <div id="detalleSerie" class="detalle-serie"></div>
+
+      <section class="bloque-detalle">
+        <h3>Rating</h3>
+        <form id="formRating" class="form-linea">
+          <select id="ratingValor">
+            <option value="5">5</option>
+            <option value="4">4</option>
+            <option value="3">3</option>
+            <option value="2">2</option>
+            <option value="1">1</option>
+          </select>
+          <input id="ratingComentario" placeholder="Comentario opcional">
+          <button class="btn btn-principal">Agregar</button>
+        </form>
+        <div id="comentariosRating" class="lista-mini"></div>
+      </section>
+
+      <section class="bloque-detalle">
+        <h3>Personajes</h3>
+        <form id="formPersonaje" class="form-linea">
+          <input type="hidden" id="personajeId">
+          <input id="personajeNombre" placeholder="Nombre" required>
+          <input id="personajeRol" placeholder="Rol">
+          <input id="personajeDescripcion" placeholder="Descripcion">
+          <button class="btn btn-principal">Guardar</button>
+        </form>
+        <div id="listaPersonajes" class="lista-mini"></div>
+      </section>
+
+      <section class="bloque-detalle">
+        <h3>Episodios</h3>
+        <form id="formEpisodio" class="form-linea">
+          <input type="hidden" id="episodioId">
+          <input id="episodioTitulo" placeholder="Titulo" required>
+          <input id="episodioTemporada" type="number" min="1" placeholder="Temp.">
+          <input id="episodioNumero" type="number" min="1" placeholder="No.">
+          <input id="episodioDuracion" placeholder="Duracion">
+          <button class="btn btn-principal">Guardar</button>
+        </form>
+        <div id="listaEpisodios" class="lista-mini"></div>
+      </section>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    window.API_CHENIN = "http://localhost:8080";
+  </script>
+  <script src="js/api.js"></script>
+  <script src="js/series.js"></script>
+  <script src="js/personajes.js"></script>
+  <script src="js/episodios.js"></script>
+  <script src="js/exports.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
