@@ -1,46 +1,31 @@
 # ChenToons Frontend
 
-ChenToons es un cliente web separado para administrar series animadas, personajes, episodios, ratings, uploads y exportaciones. Esta hecho con HTML, CSS y JavaScript vanilla: no usa React, Vue, Angular, jQuery, Axios ni librerias externas.
+ChenToons Frontend es un cliente web para explorar y administrar series animadas. Esta hecho con HTML, CSS y JavaScript vanilla, consume una API REST con `fetch()` y permite hacer CRUD completo de series. Tambien incluye ratings, filtros, personajes, episodios y exportaciones.
 
-## URLs del proyecto
+## Tecnologias usadas
 
-- Frontend local: `http://localhost:3000`
-- Backend local: `http://localhost:8080`
-- Frontend produccion Render: `https://NOMBRE-FRONTEND.onrender.com`
-- Backend produccion Render: `https://NOMBRE-BACKEND.onrender.com`
-- Repo backend: pendiente de colocar aqui el enlace del repositorio backend.
+- HTML
+- CSS
+- JavaScript Vanilla
+- Fetch API
+- Docker
 
-Antes de publicar, reemplazar `NOMBRE-BACKEND` y `NOMBRE-FRONTEND` por los nombres reales de Render.
+## Como correr localmente
 
-## Configurar API
+1. Clonar el repositorio frontend:
 
-La API base esta centralizada en `js/config.js`.
-
-```js
-const CHENTOONS_LOCAL_API = "http://localhost:8080";
-const CHENTOONS_RENDER_API = "https://NOMBRE-BACKEND.onrender.com";
+```bash
+git clone URL-DEL-REPO-FRONTEND
+cd ChenToons-frontend
 ```
 
-El frontend detecta automaticamente:
-
-- Si corre en `localhost` o `127.0.0.1`, usa `http://localhost:8080`.
-- Si corre en Render u otro dominio, usa `CHENTOONS_RENDER_API`.
-
-Para deploy final solo hay que cambiar esta linea:
-
-```js
-const CHENTOONS_RENDER_API = "https://TU-BACKEND-REAL.onrender.com";
-```
-
-Todas las llamadas pasan por `js/api.js`, usando `fetch()` y la constante `API_CHENIN`.
-
-## Correr local con Docker
+2. Levantar el frontend con Docker:
 
 ```bash
 docker compose up --build
 ```
 
-Abrir:
+3. Abrir en el navegador:
 
 ```text
 http://localhost:3000
@@ -52,87 +37,114 @@ El backend debe estar corriendo en:
 http://localhost:8080
 ```
 
-## Correr sin Docker
+## Conexion con backend
 
-Como es un sitio estatico, tambien puede abrirse con un servidor local simple o desde Live Server. El archivo de entrada es:
+El frontend consume el backend usando `fetch()` desde `js/api.js`. La URL base se configura en `js/config.js`.
+
+Backend local:
 
 ```text
-index.html
+http://localhost:8080
 ```
 
-## Deploy en Render Static Site
+Backend produccion:
 
-Configuracion recomendada:
+```text
+https://cheentoons-frontend.onrender.com/
+```
 
-- Type: `Static Site`
-- Root Directory: dejar vacio si el repo apunta a esta carpeta, o colocar la carpeta del frontend si esta dentro de un monorepo.
-- Build Command: dejar vacio
-- Publish Directory: `.`
+Para cambiar la URL de produccion, editar:
 
-No necesita Node server, npm, build step ni `node_modules`.
+```js
+const CHENTOONS_RENDER_API = "https://cheentoons-frontend.onrender.com/";
+```
 
-Importante para CORS:
+Repositorio backend:
 
-- El backend en Render debe permitir el origen del frontend, por ejemplo `https://NOMBRE-FRONTEND.onrender.com`.
-- En local debe permitir `http://localhost:3000`.
+```text
+https://github.com/EmilioChenf/ChenToons-backend
+```
 
 ## Funcionalidades
 
-- Dashboard inicial con total de series, destacadas, rating general y conteos.
-- Cards de series con imagen, nombre, genero, categoria, temporadas, estado y rating.
-- Crear, editar y eliminar series.
-- Upload de imagenes con `POST /uploads`.
-- Imagenes cargadas desde `/uploads/:filename` usando la API base configurada.
-- Busqueda, filtros, ordenamiento y paginacion local.
-- Detalle de serie con personajes, episodios y ratings.
-- Crear, editar y eliminar personajes.
-- Crear, editar y eliminar episodios.
-- Agregar rating y comentario.
-- Descargar CSV desde `GET /export/series.csv` o fallback local.
-- Descargar Excel compatible sin librerias externas.
-- Responsive para laptop, tablet y celular.
+- Listar series.
+- Crear series.
+- Editar series.
+- Eliminar series.
+- Ver ratings y agregar reseñas.
+- Mostrar personajes por serie.
+- Mostrar episodios por serie.
+- Busqueda por texto.
+- Filtros por genero y estado.
+- Ordenamiento por nombre o año.
+- Paginacion.
+- Exportar CSV.
+- Exportar Excel.
+- Upload de imagenes.
+- Imagenes base servidas desde `assets/images`.
+- Diseño responsive para laptop y celular.
+
+## Docker
+
+El frontend se sirve con Nginx dentro de Docker. No necesita Node, npm ni `node_modules`.
+
+Comando principal:
+
+```bash
+docker compose up --build
+```
+
+El contenedor publica el sitio en:
+
+```text
+http://localhost:3000
+```
 
 ## Challenges implementados
 
-- Cliente separado del backend.
-- JavaScript vanilla con `fetch()`.
-- CRUD completo de series.
+- Exportacion CSV.
+- Exportacion Excel usando SpreadsheetML sin librerias externas.
+- Sistema de ratings y comentarios.
 - Upload de imagenes.
-- Ratings y comentarios por serie.
-- Personajes y episodios asociados.
-- Busqueda, filtros, ordenamiento y paginacion.
-- Exportacion CSV y Excel sin dependencias externas.
-- Docker para correr el frontend.
-- Preparacion para Render Static Site.
+- Paginacion.
+- Busqueda.
+- Filtros.
+- Ordenamiento.
+- Diseño responsive.
+- Docker.
+- Preparacion para deploy en Render Static Site.
 
-## Pruebas finales sugeridas
+## Deploy
 
-1. Listar series.
-2. Crear serie.
-3. Editar serie.
-4. Eliminar serie de prueba.
-5. Subir imagen.
-6. Abrir detalle de serie.
-7. Agregar rating y comentario.
-8. Crear, editar y eliminar personaje.
-9. Crear, editar y eliminar episodio.
-10. Probar busqueda.
-11. Probar filtros.
-12. Probar ordenamiento.
-13. Probar paginacion.
-14. Descargar CSV.
-15. Descargar Excel.
-16. Probar responsive en movil.
+Frontend en Render:
 
-## Screenshots
+```text
+https://cheentoons-frontend.onrender.com/
+```
 
-Pendientes:
+Backend en Render:
 
-- Dashboard general.
-- Cards de series.
-- Modal de detalle con personajes, episodios y ratings.
-- Vista responsive en celular.
+```text
+https://cheentoons-backend.onrender.com/
+```
+
+Configuracion recomendada para Render Static Site:
+
+- Type: `Static Site`
+- Build Command: dejar vacio
+- Publish Directory: `.`
+
+Importante: el backend debe permitir CORS desde la URL del frontend publicado.
+
+## Screenshot
+
+![ChenToons Frontend](screenshots/frontend.png)
 
 ## Reflexion
 
-El frontend se mantuvo simple para que sea facil de explicar en clase. La separacion por archivos ayuda a ubicar cada parte: `api.js` para comunicacion con backend, `series.js` para catalogo y detalle, `personajes.js` y `episodios.js` para datos relacionados, y `exports.js` para descargas. Los challenges mas delicados fueron mantener la app sin librerias externas, manejar uploads y preparar la misma base de codigo para localhost y Render.
+Trabajar con JavaScript vanilla hizo que entendieramos mejor como se conecta el frontend con una API sin depender de frameworks. Lo mas retador fue manejar varias partes al mismo tiempo: CRUD, ratings, uploads, filtros, paginacion y exportaciones. Docker ayudo a correr el proyecto de forma mas ordenada, y Render sirvio para preparar el frontend como un sitio estatico real. Tambien aprendimos que separar bien la URL de la API facilita pasar de localhost a produccion.
+
+## Autor
+
+Proyecto: ChenToons  
+Autor: TU-NOMBRE
