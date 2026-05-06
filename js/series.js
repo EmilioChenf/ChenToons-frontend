@@ -1,10 +1,11 @@
 let seriesChenin = [];
 let paginaChen = 1;
 let serieActualJosuc = null;
-const porPaginaChen = 8;
+const porPaginaChen = 10;
+const limiteCargaSeriesChen = 100;
 
 async function cargarSeriesChenin() {
-  const respuesta = await pedirChenin("/series");
+  const respuesta = await pedirChenin(`/series?page=1&limit=${limiteCargaSeriesChen}`);
   seriesChenin = listaChen(respuesta);
   await completarPromediosChen();
   llenarFiltrosChen();
@@ -89,7 +90,7 @@ function pintarCardsChen() {
   const pagina = filtradas.slice(inicio, inicio + porPaginaChen);
 
   document.getElementById("paginaActual").textContent = `${paginaChen} / ${totalPaginas}`;
-  document.getElementById("resumenLista").textContent = `${filtradas.length} serie(s) encontradas`;
+  document.getElementById("resumenLista").textContent = `Mostrando ${pagina.length} de ${filtradas.length} serie(s)`;
   document.getElementById("paginaAnterior").disabled = paginaChen <= 1;
   document.getElementById("paginaSiguiente").disabled = paginaChen >= totalPaginas;
 
