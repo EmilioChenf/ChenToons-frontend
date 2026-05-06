@@ -133,7 +133,7 @@ function pintarCardsChen() {
     const temporadas = valorChen(serie, ["temporadas"], 0);
     const estado = valorChen(serie, ["estado"], "Sin estado");
     const rating = Number(valorChen(serie, ["promedio_rating", "rating"], 0)).toFixed(1);
-    const imagen = rutaImagenChenin(valorChen(serie, ["imagen", "image"], ""));
+    const imagen = resolverImagenChenin(valorChen(serie, ["imagen", "image"], ""));
     const destacada = valorChen(serie, ["destacada", "es_destacada"], false);
 
     return `
@@ -259,7 +259,7 @@ async function verDetalleChen(id) {
 
 function pintarDetalleSerieChen() {
   const serie = serieActualJosuc;
-  const imagen = rutaImagenChenin(valorChen(serie, ["imagen"], ""));
+  const imagen = resolverImagenChenin(valorChen(serie, ["imagen"], ""));
   document.getElementById("detalleSerie").innerHTML = `
     <img src="${imagen}" alt="${valorChen(serie, ["nombre"], "")}" onerror="this.src='assets/placeholder.png'">
     <div>

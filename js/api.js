@@ -57,10 +57,14 @@ async function subirImagenChenin(archivo) {
   return respuesta.path || respuesta.ruta || respuesta.url || respuesta.filename || "";
 }
 
-function rutaImagenChenin(ruta) {
+function resolverImagenChenin(ruta) {
   if (!ruta) return "assets/placeholder.png";
   if (ruta.startsWith("http") || ruta.startsWith("assets/")) return ruta;
-  if (ruta.startsWith("/uploads/")) return `${API_CHENIN}${ruta}`;
-  if (ruta.startsWith("uploads/")) return `${API_CHENIN}/${ruta}`;
-  return `${API_CHENIN}/uploads/${ruta}`;
+  if (ruta.startsWith("/uploads/")) return `assets/images/${ruta.split("/").pop()}`;
+  if (ruta.startsWith("uploads/")) return `assets/images/${ruta.split("/").pop()}`;
+  return `assets/images/${ruta}`;
+}
+
+function rutaImagenChenin(ruta) {
+  return resolverImagenChenin(ruta);
 }
