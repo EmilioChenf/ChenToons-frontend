@@ -219,10 +219,13 @@ async function verDetalleChen(id) {
   }
 
   if (!serieActualJosuc) return;
+  const idSerie = idChen(serieActualJosuc) || id;
+  console.log("ID serie detalle:", idSerie);
   document.getElementById("detalleTitulo").textContent = valorChen(serieActualJosuc, ["nombre"], "Detalle");
   pintarDetalleSerieChen();
-  await cargarPersonajesPorSerieChenin(id);
-  await cargarEpisodiosPorSerieChenin(id);
+  await cargarPersonajesPorSerieChenin(idSerie);
+  await cargarEpisodiosPorSerieChenin(idSerie);
+  await cargarRatingsSerieChenin(idSerie);
   pintarComentariosChen(serieActualJosuc);
   const modal = document.getElementById("modalDetalle");
   if (!modal.open) modal.showModal();
@@ -255,7 +258,7 @@ async function guardarRatingEmilio(evento) {
     comentario: document.getElementById("ratingComentario").value.trim()
   };
 
-  const respuesta = await pedirChenin(`/series/${id}/ratings`, {
+  await pedirChenin(`/series/${id}/ratings`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(datos)
@@ -264,8 +267,7 @@ async function guardarRatingEmilio(evento) {
   document.getElementById("ratingComentario").value = "";
   toastChen("Rating agregado");
 
-  const nuevoRating = typeof respuesta === "object" && respuesta ? respuesta : datos;
-  await refrescarRatingSerieChen(id, nuevoRating);
+  await refrescarRatingSerieChen(id);
 }
 
 function pintarComentariosChen(serie) {
@@ -276,31 +278,47 @@ function pintarComentariosChen(serie) {
     return;
   }
 
-  caja.innerHTML = comentarios.slice(-4).reverse().map((item) => `
+  caja.innerHTML = comentarios.slice().reverse().map((item) => `
     <div class="item-mini">
       <div>
-        <strong>${valorChen(item, ["puntuacion", "rating"], 0)} estrellas</strong>
-        <small>${valorChen(item, ["comentario"], "Sin comentario")}</small>
+        <strong>${valorChen(item, ["puntuacion", "rating", "calificacion", "valor"], 0)} estrellas</strong>
+        <small>${valorChen(item, ["comentario", "comment", "texto", "descripcion"], "Sin comentario")}</small>
       </div>
     </div>
   `).join("");
 }
 
-async function refrescarRatingSerieChen(id, nuevoRating) {
+function normalizarRatingsChen(respuesta) {
+  if (Array.isArray(respuesta)) return respuesta;
+  if (Array.isArray(respuesta?.data)) return respuesta.data;
+  if (Array.isArray(respuesta?.ratings)) return respuesta.ratings;
+  if (Array.isArray(respuesta?.comentarios)) return respuesta.comentarios;
+  return [];
+}
+
+async function cargarRatingsSerieChenin(idSerie) {
+  let ratings = [];
+
+  try {
+    const respuesta = await pedirChenin(`/series/${idSerie}/ratings`);
+    ratings = normalizarRatingsChen(respuesta);
+  } catch {
+    ratings = [];
+  }
+
+  console.log("Ratings recibidos:", ratings);
+  serieActualJosuc.ratings = ratings;
+  serieActualJosuc.comentarios = ratings;
+  return ratings;
+}
+
+async function refrescarRatingSerieChen(id) {
   let serieActualizada = null;
 
   try {
     serieActualizada = await pedirChenin(`/series/${id}`);
   } catch {
     serieActualizada = serieActualJosuc;
-  }
-
-  const comentariosBackend = valorChen(serieActualizada, ["ratings", "comentarios"], []);
-  const comentariosActuales = valorChen(serieActualJosuc, ["ratings", "comentarios"], []);
-
-  if (!Array.isArray(comentariosBackend) || !comentariosBackend.length) {
-    const listaLocal = Array.isArray(comentariosActuales) ? comentariosActuales : [];
-    serieActualizada.ratings = [...listaLocal, nuevoRating];
   }
 
   try {
@@ -313,6 +331,7 @@ async function refrescarRatingSerieChen(id, nuevoRating) {
   }
 
   serieActualJosuc = serieActualizada;
+  await cargarRatingsSerieChenin(id);
 
   const indice = seriesChenin.findIndex((serie) => String(idChen(serie)) === String(id));
   if (indice >= 0) {
