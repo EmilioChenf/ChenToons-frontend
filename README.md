@@ -15,7 +15,7 @@ ChenToons Frontend es un cliente web para explorar y administrar series animadas
 1. Clonar el repositorio frontend:
 
 ```bash
-git clone URL-DEL-REPO-FRONTEND
+git clone https://github.com/EmilioChenf/ChenToons-frontend
 cd ChenToons-frontend
 ```
 
