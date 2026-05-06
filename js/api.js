@@ -1,4 +1,4 @@
-const API_CHENIN = window.API_CHENIN || "http://localhost:8080";
+const API_CHENIN = (window.CHENTOONS_CONFIG?.API_BASE || window.API_CHENIN || "").replace(/\/$/, "");
 
 async function pedirChenin(ruta, opciones = {}) {
   const respuesta = await fetch(`${API_CHENIN}${ruta}`, opciones);

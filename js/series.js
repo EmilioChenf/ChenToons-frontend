@@ -6,9 +6,7 @@ const limiteCargaSeriesChen = 20;
 
 async function cargarSeriesChenin() {
   const urlChenin = `/series?page=1&limit=${limiteCargaSeriesChen}`;
-  console.log("URL usada:", urlChenin);
   const respuestaChenin = await pedirChenin(urlChenin);
-  console.log("Respuesta /series:", respuestaChenin);
 
   let todasLasSeriesChenin = listaChen(respuestaChenin);
   const totalPaginasBackendChen = Number(valorChen(respuestaChenin, ["total_pages"], 1)) || 1;
@@ -35,7 +33,6 @@ async function cargarSeriesChenin() {
     return true;
   });
 
-  console.log("Series cargadas:", todasLasSeriesChenin.length);
   await completarPromediosChen();
   llenarFiltrosChen();
   pintarDashboardChen();
@@ -112,13 +109,11 @@ function filtrarSeriesChen() {
 function pintarCardsChen() {
   const grid = document.getElementById("gridSeries");
   const seriesFiltradasChenin = filtrarSeriesChen();
-  console.log("Series filtradas:", seriesFiltradasChenin.length);
   const totalPaginas = Math.max(1, Math.ceil(seriesFiltradasChenin.length / porPaginaChen));
   if (paginaChen > totalPaginas) paginaChen = totalPaginas;
 
   const inicio = (paginaChen - 1) * porPaginaChen;
   const seriesPaginadasChenin = seriesFiltradasChenin.slice(inicio, inicio + porPaginaChen);
-  console.log("Series paginadas:", seriesPaginadasChenin.length);
 
   document.getElementById("paginaActual").textContent = `${paginaChen} / ${totalPaginas}`;
   document.getElementById("resumenLista").textContent = `Mostrando ${seriesPaginadasChenin.length} de ${seriesFiltradasChenin.length} serie(s)`;
@@ -252,7 +247,6 @@ async function verDetalleChen(id) {
 
   if (!serieActualJosuc) return;
   const idSerie = idChen(serieActualJosuc) || id;
-  console.log("ID serie detalle:", idSerie);
   document.getElementById("detalleTitulo").textContent = valorChen(serieActualJosuc, ["nombre"], "Detalle");
   pintarDetalleSerieChen();
   await cargarPersonajesPorSerieChenin(idSerie);
@@ -338,7 +332,6 @@ async function cargarRatingsSerieChenin(idSerie) {
     ratings = [];
   }
 
-  console.log("Ratings recibidos:", ratings);
   serieActualJosuc.ratings = ratings;
   serieActualJosuc.comentarios = ratings;
   return ratings;

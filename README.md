@@ -1,64 +1,138 @@
-# ChenToons
+# ChenToons Frontend
 
-ChenToons es un frontend universitario hecho con HTML, CSS y JavaScript vanilla para administrar series animadas, personajes, episodios, ratings y exportaciones. La idea visual mezcla cards tipo streaming con un dashboard moderno, usando colores pastel y una interfaz limpia.
+ChenToons es un cliente web separado para administrar series animadas, personajes, episodios, ratings, uploads y exportaciones. Esta hecho con HTML, CSS y JavaScript vanilla: no usa React, Vue, Angular, jQuery, Axios ni librerias externas.
 
-## Como correr con Docker
+## URLs del proyecto
 
-Desde esta carpeta:
+- Frontend local: `http://localhost:3000`
+- Backend local: `http://localhost:8080`
+- Frontend produccion Render: `https://NOMBRE-FRONTEND.onrender.com`
+- Backend produccion Render: `https://NOMBRE-BACKEND.onrender.com`
+- Repo backend: pendiente de colocar aqui el enlace del repositorio backend.
+
+Antes de publicar, reemplazar `NOMBRE-BACKEND` y `NOMBRE-FRONTEND` por los nombres reales de Render.
+
+## Configurar API
+
+La API base esta centralizada en `js/config.js`.
+
+```js
+const CHENTOONS_LOCAL_API = "http://localhost:8080";
+const CHENTOONS_RENDER_API = "https://NOMBRE-BACKEND.onrender.com";
+```
+
+El frontend detecta automaticamente:
+
+- Si corre en `localhost` o `127.0.0.1`, usa `http://localhost:8080`.
+- Si corre en Render u otro dominio, usa `CHENTOONS_RENDER_API`.
+
+Para deploy final solo hay que cambiar esta linea:
+
+```js
+const CHENTOONS_RENDER_API = "https://TU-BACKEND-REAL.onrender.com";
+```
+
+Todas las llamadas pasan por `js/api.js`, usando `fetch()` y la constante `API_CHENIN`.
+
+## Correr local con Docker
 
 ```bash
 docker compose up --build
 ```
 
-Luego abrir:
+Abrir:
 
 ```text
 http://localhost:3000
 ```
 
-El backend Go + Fiber debe estar corriendo en:
+El backend debe estar corriendo en:
 
 ```text
 http://localhost:8080
 ```
 
-## Conectar con el backend
+## Correr sin Docker
 
-La API base esta configurada en `js/api.js`:
+Como es un sitio estatico, tambien puede abrirse con un servidor local simple o desde Live Server. El archivo de entrada es:
 
-```js
-const API_CHENIN = window.API_CHENIN || "http://localhost:8080";
+```text
+index.html
 ```
 
-Si el backend usa otro puerto o dominio, se cambia esa linea. Tambien se puede definir antes desde `index.html`:
+## Deploy en Render Static Site
 
-```html
-<script>
-  window.API_CHENIN = "http://localhost:8080";
-</script>
-```
+Configuracion recomendada:
+
+- Type: `Static Site`
+- Root Directory: dejar vacio si el repo apunta a esta carpeta, o colocar la carpeta del frontend si esta dentro de un monorepo.
+- Build Command: dejar vacio
+- Publish Directory: `.`
+
+No necesita Node server, npm, build step ni `node_modules`.
+
+Importante para CORS:
+
+- El backend en Render debe permitir el origen del frontend, por ejemplo `https://NOMBRE-FRONTEND.onrender.com`.
+- En local debe permitir `http://localhost:3000`.
 
 ## Funcionalidades
 
-- Dashboard inicial con totales, series destacadas, promedio de rating y conteos.
-- Cards de series con imagen, datos principales, detalle, editar y eliminar.
-- Formulario para crear y editar series.
-- Subida de imagen local usando `POST /uploads`.
-- Busqueda, filtros por genero y estado, orden por nombre o anio, y paginacion.
-- Gestion basica de personajes por serie.
-- Gestion basica de episodios por serie.
-- Rating de 1 a 5 con comentarios.
-- Descarga CSV usando `GET /export/series.csv` o datos cargados.
-- Descarga Excel `.xlsx` compatible, generado sin librerias externas.
-- Diseno responsive para laptop y celular.
+- Dashboard inicial con total de series, destacadas, rating general y conteos.
+- Cards de series con imagen, nombre, genero, categoria, temporadas, estado y rating.
+- Crear, editar y eliminar series.
+- Upload de imagenes con `POST /uploads`.
+- Imagenes cargadas desde `/uploads/:filename` usando la API base configurada.
+- Busqueda, filtros, ordenamiento y paginacion local.
+- Detalle de serie con personajes, episodios y ratings.
+- Crear, editar y eliminar personajes.
+- Crear, editar y eliminar episodios.
+- Agregar rating y comentario.
+- Descargar CSV desde `GET /export/series.csv` o fallback local.
+- Descargar Excel compatible sin librerias externas.
+- Responsive para laptop, tablet y celular.
 
-## Screenshots pendientes
+## Challenges implementados
+
+- Cliente separado del backend.
+- JavaScript vanilla con `fetch()`.
+- CRUD completo de series.
+- Upload de imagenes.
+- Ratings y comentarios por serie.
+- Personajes y episodios asociados.
+- Busqueda, filtros, ordenamiento y paginacion.
+- Exportacion CSV y Excel sin dependencias externas.
+- Docker para correr el frontend.
+- Preparacion para Render Static Site.
+
+## Pruebas finales sugeridas
+
+1. Listar series.
+2. Crear serie.
+3. Editar serie.
+4. Eliminar serie de prueba.
+5. Subir imagen.
+6. Abrir detalle de serie.
+7. Agregar rating y comentario.
+8. Crear, editar y eliminar personaje.
+9. Crear, editar y eliminar episodio.
+10. Probar busqueda.
+11. Probar filtros.
+12. Probar ordenamiento.
+13. Probar paginacion.
+14. Descargar CSV.
+15. Descargar Excel.
+16. Probar responsive en movil.
+
+## Screenshots
+
+Pendientes:
 
 - Dashboard general.
 - Cards de series.
 - Modal de detalle con personajes, episodios y ratings.
 - Vista responsive en celular.
 
-## Reflexion breve
+## Reflexion
 
-El frontend se hizo simple a proposito: usa archivos separados por responsabilidad y funciones con nombres faciles de reconocer. No se uso ningun framework para que el proyecto sea entendible, modificable y facil de explicar paso a paso.
+El frontend se mantuvo simple para que sea facil de explicar en clase. La separacion por archivos ayuda a ubicar cada parte: `api.js` para comunicacion con backend, `series.js` para catalogo y detalle, `personajes.js` y `episodios.js` para datos relacionados, y `exports.js` para descargas. Los challenges mas delicados fueron mantener la app sin librerias externas, manejar uploads y preparar la misma base de codigo para localhost y Render.
