@@ -151,7 +151,7 @@ Importante: el backend debe permitir CORS desde la URL del frontend publicado.
 
 ## Screenshot
 
-![ChenToons Frontend](screenshots/frontend.png)
+![](image-1.png)
 
 ## Reflexion
 
