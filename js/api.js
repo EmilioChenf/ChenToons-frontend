@@ -94,6 +94,15 @@ function urlUploadChenin(ruta) {
   return archivo ? `${API_CHENIN}/uploads/${encodeURIComponent(archivo)}` : "assets/placeholder.png";
 }
 
+function esImagenBaseChenin(ruta) {
+  return IMAGENES_BASE_CHENIN.has(nombreArchivoChenin(ruta));
+}
+
+function urlImagenBaseChenin(ruta) {
+  const archivo = nombreArchivoChenin(ruta);
+  return archivo ? `assets/images/${archivo}` : "assets/placeholder.png";
+}
+
 function rutaSubidaChenin(respuesta) {
   const datos = respuesta?.data || respuesta;
   const ruta = typeof datos === "string"
@@ -122,9 +131,9 @@ function resolverImagenChenin(ruta) {
   if (rutaLimpia.startsWith("/assets/images/")) {
     return IMAGENES_BASE_CHENIN.has(archivo) ? rutaLimpia.slice(1) : urlUploadChenin(archivo);
   }
-  if (rutaLimpia.startsWith("/uploads/")) return urlUploadChenin(rutaLimpia);
-  if (rutaLimpia.startsWith("uploads/")) return urlUploadChenin(rutaLimpia);
-  if (rutaLimpia.includes("/uploads/")) return urlUploadChenin(rutaLimpia);
+  if (rutaLimpia.startsWith("/uploads/")) return esImagenBaseChenin(rutaLimpia) ? urlImagenBaseChenin(rutaLimpia) : urlUploadChenin(rutaLimpia);
+  if (rutaLimpia.startsWith("uploads/")) return esImagenBaseChenin(rutaLimpia) ? urlImagenBaseChenin(rutaLimpia) : urlUploadChenin(rutaLimpia);
+  if (rutaLimpia.includes("/uploads/")) return esImagenBaseChenin(rutaLimpia) ? urlImagenBaseChenin(rutaLimpia) : urlUploadChenin(rutaLimpia);
   if (!rutaLimpia.includes("/") && !IMAGENES_BASE_CHENIN.has(rutaLimpia)) return urlUploadChenin(rutaLimpia);
   return `assets/images/${rutaLimpia}`;
 }
