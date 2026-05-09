@@ -53,16 +53,80 @@ async function subirImagenChenin(archivo) {
     body: datos
   });
 
-  if (typeof respuesta === "string") return respuesta;
-  return respuesta.path || respuesta.ruta || respuesta.url || respuesta.filename || "";
+  return rutaSubidaChenin(respuesta);
+}
+
+const IMAGENES_BASE_CHENIN = new Set([
+  "bluey.jpg",
+  "chicas-superpoderosas.jpg",
+  "craig.jpg",
+  "dexter.jpg",
+  "doraemon.jpg",
+  "escandalosos.jpg",
+  "gravity-falls.jpg",
+  "gumball.jpg",
+  "hey-arnold.jpg",
+  "hora-aventura.jpg",
+  "masha.jpg",
+  "oggy.jpg",
+  "peppa.jpg",
+  "pocoyo.jpg",
+  "pocoyo.png",
+  "rugrats.jpg",
+  "snoopy.jpg",
+  "steven.jpg",
+  "tom-jerry.jpg"
+]);
+
+function nombreArchivoChenin(ruta) {
+  return String(ruta || "")
+    .trim()
+    .replace(/\\/g, "/")
+    .split("?")[0]
+    .split("#")[0]
+    .split("/")
+    .filter(Boolean)
+    .pop() || "";
+}
+
+function urlUploadChenin(ruta) {
+  const archivo = nombreArchivoChenin(ruta);
+  return archivo ? `${API_CHENIN}/uploads/${encodeURIComponent(archivo)}` : "assets/placeholder.png";
+}
+
+function rutaSubidaChenin(respuesta) {
+  const datos = respuesta?.data || respuesta;
+  const ruta = typeof datos === "string"
+    ? datos
+    : datos?.path || datos?.ruta || datos?.url || datos?.imageUrl || datos?.image_url || datos?.filePath || datos?.filepath || datos?.filename || datos?.file || datos?.nombre || "";
+  const rutaLimpia = String(ruta || "").trim().replace(/\\/g, "/");
+  const archivo = nombreArchivoChenin(rutaLimpia);
+
+  if (!rutaLimpia) return "";
+  if (rutaLimpia.startsWith("http")) return rutaLimpia;
+  if (rutaLimpia.includes("/uploads/") || (!rutaLimpia.includes("/") && archivo)) return `/uploads/${archivo}`;
+  return rutaLimpia;
 }
 
 function resolverImagenChenin(ruta) {
   if (!ruta) return "assets/placeholder.png";
-  if (ruta.startsWith("http") || ruta.startsWith("assets/")) return ruta;
-  if (ruta.startsWith("/uploads/")) return `assets/images/${ruta.split("/").pop()}`;
-  if (ruta.startsWith("uploads/")) return `assets/images/${ruta.split("/").pop()}`;
-  return `assets/images/${ruta}`;
+
+  const rutaLimpia = String(ruta).trim().replace(/\\/g, "/");
+  const archivo = nombreArchivoChenin(rutaLimpia);
+
+  if (!rutaLimpia) return "assets/placeholder.png";
+  if (rutaLimpia.startsWith("http")) return rutaLimpia;
+  if (rutaLimpia.startsWith("assets/images/")) {
+    return IMAGENES_BASE_CHENIN.has(archivo) ? rutaLimpia : urlUploadChenin(archivo);
+  }
+  if (rutaLimpia.startsWith("/assets/images/")) {
+    return IMAGENES_BASE_CHENIN.has(archivo) ? rutaLimpia.slice(1) : urlUploadChenin(archivo);
+  }
+  if (rutaLimpia.startsWith("/uploads/")) return urlUploadChenin(rutaLimpia);
+  if (rutaLimpia.startsWith("uploads/")) return urlUploadChenin(rutaLimpia);
+  if (rutaLimpia.includes("/uploads/")) return urlUploadChenin(rutaLimpia);
+  if (!rutaLimpia.includes("/") && !IMAGENES_BASE_CHENIN.has(rutaLimpia)) return urlUploadChenin(rutaLimpia);
+  return `assets/images/${rutaLimpia}`;
 }
 
 function rutaImagenChenin(ruta) {
