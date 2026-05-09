@@ -3,6 +3,59 @@ let paginaChen = 1;
 let serieActualJosuc = null;
 const porPaginaChen = 10;
 const limiteCargaSeriesChen = 20;
+const imagenesBaseSeriesChen = new Set([
+  "bluey.jpg",
+  "chicas-superpoderosas.jpg",
+  "craig.jpg",
+  "dexter.jpg",
+  "doraemon.jpg",
+  "escandalosos.jpg",
+  "gravity-falls.jpg",
+  "gumball.jpg",
+  "hey-arnold.jpg",
+  "hora-aventura.jpg",
+  "masha.jpg",
+  "oggy.jpg",
+  "peppa.jpg",
+  "pocoyo.jpg",
+  "pocoyo.png",
+  "rugrats.jpg",
+  "snoopy.jpg",
+  "steven.jpg",
+  "tom-jerry.jpg"
+]);
+
+function nombreArchivoSerieChen(ruta) {
+  return String(ruta || "")
+    .trim()
+    .replace(/\\/g, "/")
+    .split("?")[0]
+    .split("#")[0]
+    .split("/")
+    .filter(Boolean)
+    .pop() || "";
+}
+
+function fallbackImagenSerieChen(ruta) {
+  const archivo = nombreArchivoSerieChen(ruta);
+  if (!archivo) return "/assets/placeholder.png";
+  return imagenesBaseSeriesChen.has(archivo)
+    ? `${API_CHENIN}/uploads/${encodeURIComponent(archivo)}`
+    : `/assets/images/${archivo}`;
+}
+
+function manejarErrorImagenSerieChen(imagen) {
+  const fallback = imagen.dataset.fallback;
+
+  if (fallback && imagen.src !== fallback) {
+    imagen.dataset.fallback = "";
+    imagen.src = fallback;
+    return;
+  }
+
+  imagen.onerror = null;
+  imagen.src = "/assets/placeholder.png";
+}
 
 async function cargarSeriesChenin() {
   const urlChenin = `/series?page=1&limit=${limiteCargaSeriesChen}`;
@@ -135,13 +188,13 @@ function pintarCardsChen() {
     const rating = Number(valorChen(serie, ["promedio_rating", "rating"], 0)).toFixed(1);
     const rutaImagen = valorChen(serie, ["imagen", "image"], "");
     const imagen = resolverImagenChenin(rutaImagen);
-    const fallbackImagen = fallbackImagenChenin(rutaImagen);
+    const fallbackImagen = fallbackImagenSerieChen(rutaImagen);
     const destacada = valorChen(serie, ["destacada", "es_destacada"], false);
 
     return `
       <article class="serie-card">
         <div class="serie-img">
-          <img src="${imagen}" data-fallback="${fallbackImagen}" alt="${nombre}" onerror="manejarErrorImagenChenin(this)">
+          <img src="${imagen}" data-fallback="${fallbackImagen}" alt="${nombre}" onerror="manejarErrorImagenSerieChen(this)">
           ${destacada ? '<span class="badge badge-flotante">Destacada</span>' : ""}
         </div>
         <div class="serie-body">
@@ -263,9 +316,9 @@ function pintarDetalleSerieChen() {
   const serie = serieActualJosuc;
   const rutaImagen = valorChen(serie, ["imagen"], "");
   const imagen = resolverImagenChenin(rutaImagen);
-  const fallbackImagen = fallbackImagenChenin(rutaImagen);
+  const fallbackImagen = fallbackImagenSerieChen(rutaImagen);
   document.getElementById("detalleSerie").innerHTML = `
-    <img src="${imagen}" data-fallback="${fallbackImagen}" alt="${valorChen(serie, ["nombre"], "")}" onerror="manejarErrorImagenChenin(this)">
+    <img src="${imagen}" data-fallback="${fallbackImagen}" alt="${valorChen(serie, ["nombre"], "")}" onerror="manejarErrorImagenSerieChen(this)">
     <div>
       <p>${valorChen(serie, ["descripcion"], "Sin descripcion")}</p>
       <div class="meta">
