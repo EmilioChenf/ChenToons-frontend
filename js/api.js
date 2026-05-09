@@ -100,7 +100,27 @@ function esImagenBaseChenin(ruta) {
 
 function urlImagenBaseChenin(ruta) {
   const archivo = nombreArchivoChenin(ruta);
-  return archivo ? `assets/images/${archivo}` : "assets/placeholder.png";
+  return archivo ? `/assets/images/${archivo}` : "/assets/placeholder.png";
+}
+
+function fallbackImagenChenin(ruta) {
+  const archivo = nombreArchivoChenin(ruta);
+  if (!archivo) return "/assets/placeholder.png";
+  if (esImagenBaseChenin(ruta)) return urlUploadChenin(archivo);
+  return `/assets/images/${archivo}`;
+}
+
+function manejarErrorImagenChenin(imagen) {
+  const fallback = imagen.dataset.fallback;
+
+  if (fallback && imagen.src !== fallback) {
+    imagen.dataset.fallback = "";
+    imagen.src = fallback;
+    return;
+  }
+
+  imagen.onerror = null;
+  imagen.src = "/assets/placeholder.png";
 }
 
 function rutaSubidaChenin(respuesta) {
@@ -126,16 +146,16 @@ function resolverImagenChenin(ruta) {
   if (!rutaLimpia) return "assets/placeholder.png";
   if (rutaLimpia.startsWith("http")) return rutaLimpia;
   if (rutaLimpia.startsWith("assets/images/")) {
-    return IMAGENES_BASE_CHENIN.has(archivo) ? rutaLimpia : urlUploadChenin(archivo);
+    return IMAGENES_BASE_CHENIN.has(archivo) ? urlImagenBaseChenin(archivo) : urlUploadChenin(archivo);
   }
   if (rutaLimpia.startsWith("/assets/images/")) {
-    return IMAGENES_BASE_CHENIN.has(archivo) ? rutaLimpia.slice(1) : urlUploadChenin(archivo);
+    return IMAGENES_BASE_CHENIN.has(archivo) ? urlImagenBaseChenin(archivo) : urlUploadChenin(archivo);
   }
   if (rutaLimpia.startsWith("/uploads/")) return esImagenBaseChenin(rutaLimpia) ? urlImagenBaseChenin(rutaLimpia) : urlUploadChenin(rutaLimpia);
   if (rutaLimpia.startsWith("uploads/")) return esImagenBaseChenin(rutaLimpia) ? urlImagenBaseChenin(rutaLimpia) : urlUploadChenin(rutaLimpia);
   if (rutaLimpia.includes("/uploads/")) return esImagenBaseChenin(rutaLimpia) ? urlImagenBaseChenin(rutaLimpia) : urlUploadChenin(rutaLimpia);
   if (!rutaLimpia.includes("/") && !IMAGENES_BASE_CHENIN.has(rutaLimpia)) return urlUploadChenin(rutaLimpia);
-  return `assets/images/${rutaLimpia}`;
+  return `/assets/images/${rutaLimpia}`;
 }
 
 function rutaImagenChenin(ruta) {

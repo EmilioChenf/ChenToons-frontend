@@ -133,13 +133,15 @@ function pintarCardsChen() {
     const temporadas = valorChen(serie, ["temporadas"], 0);
     const estado = valorChen(serie, ["estado"], "Sin estado");
     const rating = Number(valorChen(serie, ["promedio_rating", "rating"], 0)).toFixed(1);
-    const imagen = resolverImagenChenin(valorChen(serie, ["imagen", "image"], ""));
+    const rutaImagen = valorChen(serie, ["imagen", "image"], "");
+    const imagen = resolverImagenChenin(rutaImagen);
+    const fallbackImagen = fallbackImagenChenin(rutaImagen);
     const destacada = valorChen(serie, ["destacada", "es_destacada"], false);
 
     return `
       <article class="serie-card">
         <div class="serie-img">
-          <img src="${imagen}" alt="${nombre}" onerror="this.src='assets/placeholder.png'">
+          <img src="${imagen}" data-fallback="${fallbackImagen}" alt="${nombre}" onerror="manejarErrorImagenChenin(this)">
           ${destacada ? '<span class="badge badge-flotante">Destacada</span>' : ""}
         </div>
         <div class="serie-body">
@@ -259,9 +261,11 @@ async function verDetalleChen(id) {
 
 function pintarDetalleSerieChen() {
   const serie = serieActualJosuc;
-  const imagen = resolverImagenChenin(valorChen(serie, ["imagen"], ""));
+  const rutaImagen = valorChen(serie, ["imagen"], "");
+  const imagen = resolverImagenChenin(rutaImagen);
+  const fallbackImagen = fallbackImagenChenin(rutaImagen);
   document.getElementById("detalleSerie").innerHTML = `
-    <img src="${imagen}" alt="${valorChen(serie, ["nombre"], "")}" onerror="this.src='assets/placeholder.png'">
+    <img src="${imagen}" data-fallback="${fallbackImagen}" alt="${valorChen(serie, ["nombre"], "")}" onerror="manejarErrorImagenChenin(this)">
     <div>
       <p>${valorChen(serie, ["descripcion"], "Sin descripcion")}</p>
       <div class="meta">
