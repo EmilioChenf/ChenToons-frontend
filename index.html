@@ -195,9 +195,27 @@
 
   <div id="toast" class="toast"></div>
 
-  <script src="js/config.js?v=5"></script>
-  <script src="js/api.js?v=5"></script>
-  <script src="js/series.js?v=5"></script>
+  <script src="js/config.js?v=6"></script>
+  <script src="js/api.js?v=6"></script>
+  <script>
+    window.fallbackImagenChenin = window.fallbackImagenChenin || function(ruta) {
+      const archivo = String(ruta || "").trim().replace(/\\/g, "/").split("?")[0].split("#")[0].split("/").filter(Boolean).pop() || "";
+      const base = new Set(["bluey.jpg", "chicas-superpoderosas.jpg", "craig.jpg", "dexter.jpg", "doraemon.jpg", "escandalosos.jpg", "gravity-falls.jpg", "gumball.jpg", "hey-arnold.jpg", "hora-aventura.jpg", "masha.jpg", "oggy.jpg", "peppa.jpg", "pocoyo.jpg", "pocoyo.png", "rugrats.jpg", "snoopy.jpg", "steven.jpg", "tom-jerry.jpg"]);
+      if (!archivo) return "/assets/placeholder.png";
+      return base.has(archivo) ? `${API_CHENIN}/uploads/${encodeURIComponent(archivo)}` : `/assets/images/${archivo}`;
+    };
+    window.manejarErrorImagenChenin = window.manejarErrorImagenChenin || function(imagen) {
+      const fallback = imagen.dataset.fallback;
+      if (fallback && imagen.src !== fallback) {
+        imagen.dataset.fallback = "";
+        imagen.src = fallback;
+        return;
+      }
+      imagen.onerror = null;
+      imagen.src = "/assets/placeholder.png";
+    };
+  </script>
+  <script src="js/series.js?v=6"></script>
   <script src="js/personajes.js"></script>
   <script src="js/episodios.js"></script>
   <script src="js/exports.js"></script>
